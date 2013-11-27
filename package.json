@@ -1,0 +1,12 @@
+{
+  "name": "mini-project-smrtz",
+  "description": "Mini project called SMRTZ",
+  "version": "0.0.1",
+  "private": true,
+  "devDependencies": {
+    "grunt": "~0.4.2",
+    "grunt-contrib-coffee": "~0.7.0",
+    "grunt-contrib-stylus": "~0.10.0",
+    "grunt-contrib-watch": "~0.5.3"
+  }
+}
