@@ -14,13 +14,16 @@
   <script id="questionTemplate" type="text/template">
     <div id="question" data-id="{{ id }}">{{ question }}</div>
     <div id="answers">
-      <div class="true">True</div>
-      <div class="false">False</div>
+      <div class="answer" data-result="true">True</div>
+      <div class="answer" data-result="false">False</div>
     </div>
-    <div class="container">
-      <div id="result">Answer {{ answer }}</div>
-      <div id="next">Next Question</div>
-    </div>
+    <!--
+    -->
+  </script>
+
+  <script id="questionResultTemplate" type="text/template">
+    <div id="result" class="{{ result_class }}">{{ result }}</div>
+    <div id="next">Next Question</div>
   </script>
 
   <script id="resultTemplate" type="text/template">
