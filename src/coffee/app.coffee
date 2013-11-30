@@ -18,32 +18,57 @@ require.config
 
 require ['underscore', 'jquery', 'backbone', 'mustache'], (_, $, Backbone, Mustache) ->
 
+  app = {}
+
   class QuizView extends Backbone.View
     el: '#body'
+
     initialize: ->
-      @collection = new QuestionCollection()
-      @collection.fetch
+      app.quizEvents.bind "nextQuestion", _.bind(@nextQuestion, this)
+      app.collection.fetch
         success: (collection) =>
-          console.log "Success"
-          console.log @collection.length
-          questionView = new QuestionView
-            model: @collection.next()
-          @$el.html questionView.$el
+          #@nextQuestion()
+          app.quizEvents.trigger "nextQuestion"
+          return
+      @render()
       this
+
+    nextQuestion: ->
+
+      if @currentView?
+        @currentView.remove()
+
+      model = app.collection.next()
+
+      if model?
+        @currentView = new QuestionView
+          model: model
+        @$el.html @currentView.$el
+      else
+        app.quizEvents.unbind "nextQuestion"
+        app.router.navigate "results",
+          trigger: true,
+          replace: true
+
 
   class QuestionView extends Backbone.View
     className: 'question_view'
+
     template: Mustache.compile $('#questionTemplate').html()
+
     events:
       'click .answer': 'chosenAnswer'
+
     initialize: ->
       @givenAnswer = false
       @listenTo @model, 'change', @render
       @render()
       this
+
     render: ->
       @$el.html @template(@model.attributes)
       this
+
     chosenAnswer: (event) =>
       if !@givenAnswer
         @givenAnswer = true
@@ -51,14 +76,12 @@ require ['underscore', 'jquery', 'backbone', 'mustache'], (_, $, Backbone, Musta
         element = $(event.target)
         element.addClass 'chosen'
 
-        result = element.data('result')
-        @model.result = result
-        console.log typeof @model.result
-        console.log typeof @model.answer
-        console.log @model.answer
+        result = element.data 'result'
+        @model.set
+          result: result
 
         context = {}
-        if @model.answer == @model.result
+        if @model.get('answer') is result
           context['result'] = 'Correct'
           context['result_class'] = 'correct'
         else
@@ -76,33 +99,63 @@ require ['underscore', 'jquery', 'backbone', 'mustache'], (_, $, Backbone, Musta
 
   class QuestionResultView extends Backbone.View
     className: 'result'
+
+    events:
+      'click #next': 'triggerNextQuestion'
+
     template: Mustache.compile $('#questionResultTemplate').html()
+
     initialize: ->
       this
+
     render: () ->
       @$el.html @template(@model.attributes)
       this
 
+    triggerNextQuestion: ->
+      app.quizEvents.trigger "nextQuestion"
+      return
+
 
   class StartView extends Backbone.View
     el: '#body'
+
     template: Mustache.compile $('#startTemplate').html()
+
     events:
       'click #start': 'startQuiz'
+
     initialize: ->
       @render()
       this
+
     render: ->
       @$el.html @template()
       this
+
     startQuiz: ->
-      quizView = new QuizView()
-      quizView.render()
+      app.router.navigate "quiz",
+        trigger: true
+        replace: true
 
 
   class ResultView extends Backbone.View
+    el: '#body'
+
+    template: Mustache.compile $('#resultTemplate').html()
+
     initialize: ->
-      return
+      console.log "Initialize"
+      @render()
+
+    render: ->
+      results = (model.attributes for model in app.collection.models)
+      console.log results
+      @$el.html @template
+        results: results
+        result: 2
+        total: 4
+      this
 
 
   class QuestionModel extends Backbone.Model
@@ -122,8 +175,10 @@ require ['underscore', 'jquery', 'backbone', 'mustache'], (_, $, Backbone, Musta
   class QuestionCollection extends Backbone.Collection
     model: QuestionModel
     url: '/questions'
+    initialize: ->
+      @index = 0
+      this
     fetch: (options) ->
-      console.log 'sync'
       questions = [
           'id': 1
           'question': "Tim Berners-Lee invented the Internet."
@@ -143,24 +198,35 @@ require ['underscore', 'jquery', 'backbone', 'mustache'], (_, $, Backbone, Musta
       ]
       for question in questions
         @add new QuestionModel(question)
-        console.log question
       options.success this
       return
     next: ->
-      @index = if @index then @index++ else 0
-      return @models[@index]
+      current = @index
+      @index++
+      return @models[current]
+
+
+  app.quizEvents = _.extend {}, Backbone.Events
 
 
   class Router extends Backbone.Router
     routes:
       '': 'index'
+      'quiz': 'quiz'
+      'results': 'results'
 
-    index: () ->
-      console.log 'index'
+    index: ->
       startView = new StartView()
 
+    quiz: ->
+      app.collection = new QuestionCollection()
+      quizView = new QuizView()
 
-  router = new Router()
+    results: ->
+      resultView = new ResultView()
+
+
+  app.router = new Router()
 
   Backbone.history.start
     pushState: true

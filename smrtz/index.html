@@ -8,7 +8,6 @@
   <meta name="description" content="SMRTZ">
   <meta name="author" content="Randy Topliffe">
 
-  <link rel="stylesheet" href="css/toast.css?v=0.1">
   <link rel="stylesheet" href="css/base.css?v=0.1">
 
   <script id="questionTemplate" type="text/template">
@@ -17,8 +16,6 @@
       <div class="answer" data-result="true">True</div>
       <div class="answer" data-result="false">False</div>
     </div>
-    <!--
-    -->
   </script>
 
   <script id="questionResultTemplate" type="text/template">
@@ -35,13 +32,12 @@
       {{/ results }}
     </div>
     <p>Total: {{ result }} {{ total }}%</p>
-    <div class="container">
-    </div>
   </script>
 
   <script id="startTemplate" type="text/template">
-    <a href="#" id="start">Start</a>
-    <p>
+    <a href="#" class="clearfix" id="start">Start</a>
+    <div class="spacer clearfix"></div>
+    <p class="clearfix">
       {{# result }}Previous result: {{ result }}{{/ result }}
       {{^ result }}No previous result{{/ result }}
     </p>
