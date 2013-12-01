@@ -244,7 +244,7 @@ require ['underscore', 'jquery', 'backbone', 'mustache'], (_, $, Backbone, Musta
     fetch: (options) ->
       questions = [
           'id': 1
-          'question': "Tim Berners-Lee invented the Internet."
+          'question': "Tim Berners-Lee invented the World Wide Web."
         ,
           'id': 2
           'question': "Dogs are better than cats."
