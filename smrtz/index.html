@@ -8,54 +8,89 @@
   <meta name="description" content="SMRTZ">
   <meta name="author" content="Randy Topliffe">
 
-  <link rel="stylesheet" href="css/base.css?v=0.1">
+  <link rel="stylesheet" href="/css/base.css?v=0.1">
 
   <script id="questionTemplate" type="text/template">
-    <div id="question" data-id="{{ id }}">{{ question }}</div>
+    <div id="question" class="header" data-id="{{ id }}">{{ question }}</div>
     <div id="answers">
-      <div class="answer" data-result="true">True</div>
-      <div class="answer" data-result="false">False</div>
+      <div class="answer blue-style" data-result="true">True</div>
+      <div class="answer blue-style" data-result="false">False</div>
     </div>
   </script>
 
   <script id="questionResultTemplate" type="text/template">
-    <div id="result" class="{{ result_class }}">{{ result }}</div>
+    <div id="result" class="{{ status }}">{{ status }}</div>
     <div id="next">Next Question</div>
   </script>
 
   <script id="resultTemplate" type="text/template">
-    <p>Results:</p>
+    <h3 class="header">Results</h3>
     <div id="results">
+        <div class="grid">
+          <div class="unit two-of-three grid-header">Your Answer</div>
+          <div class="unit one-of-three grid-header">Your Result</div>
+        </div>
       {{# results }}
-        <div class="true">True</div>
-        <div class="false">False</div>
+        <div class="grid">
+          {{# result }}
+            <div class="selected unit one-of-three">True</div>
+            <div class="blue-style unit one-of-three">False</div>
+          {{/ result }}
+          {{^ result }}
+            <div class="blue-style unit one-of-three">True</div>
+            <div class="selected unit one-of-three">False</div>
+          {{/ result }}
+          <div class="{{ status }} unit one-of-three">{{ status }}</div>
+        </div>
       {{/ results }}
+      <div class="grid">
+        <div class="total unit span-grid grid-header">
+          Total:
+        </div>
+        <div class="amount_correct unit one-of-two grid-header">
+          {{ amount_correct }}/{{ total_questions }}
+        </div>
+        <div class="precent unit one-of-two grid-header">
+          {{ precent }}%
+        </div>
+      </div>
+      <div class="grid">
+        <div class="home unit one-of-two">
+          Home
+        </div>
+        <div class="again unit one-of-two">
+          Again!
+        </div>
+      </div>
     </div>
-    <p>Total: {{ result }} {{ total }}%</p>
   </script>
 
   <script id="startTemplate" type="text/template">
-    <a href="#" class="clearfix" id="start">Start</a>
-    <div class="spacer clearfix"></div>
-    <p class="clearfix">
-      {{# result }}Previous result: {{ result }}{{/ result }}
-      {{^ result }}No previous result{{/ result }}
+    <div id="start" class="one-of-two">Start</div>
+    <div class="spacer"></div>
+    <p class="header">
+      {{# amount_correct }}
+        Previous result: {{ amount_correct }}/{{ total_questions }} - {{ precent }}%
+        {{/ amount_correct }}
+      {{^ amount_correct }}No previous result{{/ amount_correct }}
     </p>
   </script>
 </head>
 
 <body>
-  <div class="container grid">
-    <div id="header" class="bar unit span-grid">
-      SMRTZ
-    </div>
-    <div id="body" class="unit span-grid">
-    </div>
-    <div id="footer" class="bar unit span-grid">
-      By: Randy Topliffe
+  <div class="container">
+    <div class="grid">
+      <div id="header" class="bar unit span-grid">
+        <a href="" id="home">SMRTZ</a>
+      </div>
+      <div id="body" class="unit span-grid">
+      </div>
+      <div id="footer" class="bar unit span-grid">
+        By: Randy Topliffe
+      </div>
     </div>
   </div>
-  <script src="js/lib/require.js"></script>
-  <script src="js/app.js"></script>
+  <script src="/js/lib/require.js"></script>
+  <script src="/js/app.js"></script>
 </body>
 </html>

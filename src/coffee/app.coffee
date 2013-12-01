@@ -24,10 +24,11 @@ require ['underscore', 'jquery', 'backbone', 'mustache'], (_, $, Backbone, Musta
     el: '#body'
 
     initialize: ->
+      console.log "QuizView initialize"
+      app.quizEvents.unbind "nextQuestion"
       app.quizEvents.bind "nextQuestion", _.bind(@nextQuestion, this)
       app.collection.fetch
         success: (collection) =>
-          #@nextQuestion()
           app.quizEvents.trigger "nextQuestion"
           return
       @render()
@@ -74,7 +75,8 @@ require ['underscore', 'jquery', 'backbone', 'mustache'], (_, $, Backbone, Musta
         @givenAnswer = true
 
         element = $(event.target)
-        element.addClass 'chosen'
+        element.removeClass 'answer blue-style'
+        element.addClass 'selected'
 
         result = element.data 'result'
         @model.set
@@ -82,16 +84,12 @@ require ['underscore', 'jquery', 'backbone', 'mustache'], (_, $, Backbone, Musta
 
         context = {}
         if @model.get('answer') is result
-          context['result'] = 'Correct'
-          context['result_class'] = 'correct'
+          @model.set 'status', 'correct'
         else
-          context['result'] = 'Incorrect'
-          context['result_class'] = 'incorrect'
-
-        questionResultModel = new QuestionResultModel context
+          @model.set 'status', 'incorrect'
 
         questionResultView = new QuestionResultView
-          model: questionResultModel
+          model: @model
         questionResultView.render()
         @$el.append questionResultView.$el
         return
@@ -130,11 +128,22 @@ require ['underscore', 'jquery', 'backbone', 'mustache'], (_, $, Backbone, Musta
       this
 
     render: ->
-      @$el.html @template()
+      @$el.html @template(app.previousResult.attributes)
       this
 
     startQuiz: ->
       app.router.navigate "quiz",
+        trigger: true
+        replace: true
+
+
+  class HomeView extends Backbone.View
+    el: '#home'
+    events:
+      'click': 'home'
+    home: (event) ->
+      event.preventDefault()
+      app.router.navigate "",
         trigger: true
         replace: true
 
@@ -144,18 +153,39 @@ require ['underscore', 'jquery', 'backbone', 'mustache'], (_, $, Backbone, Musta
 
     template: Mustache.compile $('#resultTemplate').html()
 
+    events:
+      'click .home': 'home'
+      'click .again': 'again'
+
     initialize: ->
       console.log "Initialize"
       @render()
 
     render: ->
-      results = (model.attributes for model in app.collection.models)
-      console.log results
-      @$el.html @template
-        results: results
-        result: 2
-        total: 4
+      results = []
+      amount_correct = 0
+
+      for model in app.collection.models
+        results.push model.attributes
+        if model.get('status') is 'correct'
+          amount_correct++
+
+      app.previousResult.set 'amount_correct', amount_correct
+      app.previousResult.set 'total_questions', app.collection.length
+      app.previousResult.set 'precent', amount_correct / app.collection.length * 100
+
+      @$el.html @template(_.extend { results: results }, app.previousResult.attributes)
       this
+
+    home: ->
+      app.router.navigate "",
+        trigger: true
+        replace: true
+
+    again: ->
+      app.router.navigate "quiz",
+        trigger: true
+        replace: true
 
 
   class QuestionModel extends Backbone.Model
@@ -164,18 +194,21 @@ require ['underscore', 'jquery', 'backbone', 'mustache'], (_, $, Backbone, Musta
       question: ''
       answer: ''
       result: ''
+      status: ''
 
 
-  class QuestionResultModel extends Backbone.Model
+  class PreviousResultModel extends Backbone.Model
     defaults:
-      result: ''
-      result_class: ''
+      amount_correct: ''
+      total_questions: ''
+      precent: ''
 
 
   class QuestionCollection extends Backbone.Collection
     model: QuestionModel
     url: '/questions'
     initialize: ->
+      console.log "QuestionCollection initialize"
       @index = 0
       this
     fetch: (options) ->
@@ -201,12 +234,18 @@ require ['underscore', 'jquery', 'backbone', 'mustache'], (_, $, Backbone, Musta
       options.success this
       return
     next: ->
+      console.log current
+      console.log @index
       current = @index
       @index++
       return @models[current]
 
 
+  app.previousResult = new PreviousResultModel()
+
   app.quizEvents = _.extend {}, Backbone.Events
+
+  homeView = new HomeView()
 
 
   class Router extends Backbone.Router

@@ -47,16 +47,22 @@ html
 
 .unit
   display inline-block
-  *display inline
-  *zoom 1
   vertical-align top
   margin-left 3%
   margin-right -.25em
   overflow hidden
-  *overflow visible
 
 .span-grid
   width: 97%
+
+.one-of-three
+  width 30.36%
+
+.two-of-three
+  width 63.666666666%
+
+.one-of-two
+  width 47%
 
 .bar
   background-color black
@@ -66,26 +72,151 @@ html
   padding-top 10px
   padding-bottom 10px
 
+/* mixins */
+
+button-style(pdtb, pdrl, bra)
+  padding pdtb pdrl
+  -moz-border-radius bra
+  border-radius bra
+
+/* variables */
+
+green_l = #5fcc60
+green_d = #225920
+grey_l = #b1b1b1
+grey_d = #979797
+red_d = #7a2a2b
+blue_l = #35899d
+blue_d = #296776
+orange_l = #ff7836
+orange_d = #c9622e
+
 #body
   text-align center
   padding-top 10px
 
 #start
-  background-color #5fcc60
-  color #225920
-  padding 20px 20px
-  -moz-border-radius 10px 10px 10px 10px
-  border-radius 10px 10px 10px 10px
-  border #225920 3px solid
+  button-style(30px, 20px, 10px)
+  background-color green_l
+  border-color green_d
+  color green_d
+  text-decoration none
+  display inline-block
+  border green_d 3px solid
+  cursor pointer
+  margin-bottom 1rem
+  margin-top 1rem
+
+#start:hover
+  background-color green_d
+  color green_l
+
+#next
+  display inline-block
+  background-color grey_l
+  color #ffffff
+  margin-bottom 1rem
+  border grey_d 3px solid
+  cursor pointer
+  button-style(5px, 10px, 10px)
+
+#next:hover
+  background-color grey_d
+  border-color grey_l
+
+#result
+  margin-bottom 1rem
+  color #ffffff
+  -moz-border-radius 10px
+  border-radius 10px
+  text-transform capitalize
+
+#results .grid
+  margin-right .3rem
+
+#home
+  text-decoration none
+  color #ffffff
+
+#home:hover
+  color blue_l
+
+.home
+  background-color blue_l
+  color #ffffff
+  margin-bottom 1rem
+  border blue_d 3px solid
+  button-style(10px, 10px, 10px)
+  cursor pointer
+
+.home:hover
+  background-color blue_d
+  border-color blue_l
+
+.again
+  background-color green_l
+  color #ffffff
+  margin-bottom 1rem
+  border green_d 3px solid
+  button-style(10px, 10px, 10px)
+  cursor pointer
+
+.again:hover
+  background-color green_d
+  border-color green_l
+
+.header
+  background-color grey_l
+  color #000000
+  margin-bottom 1rem
+  button-style(20px, 20px, 10px)
+
+.grid-header
+  background-color grey_d
+  color #000000
+  margin-bottom 1rem
+  button-style(5px, 5px, 10px)
+
+.correct
+  background-color green_d
+  text-transform capitalize
+  color #ffffff
+  button-style(7px, 7px, 10px)
+
+.incorrect
+  background-color red_d
+  text-transform capitalize
+  color #ffffff
+  button-style(7px, 7px, 10px)
 
 .clearfix
   display inline-block
-  *display inline
-  *zoom: 1
   vertical-align top
   overflow hidden
-  *overflow visible
 
 .spacer
   width 100%
   height 1px;
+
+.blue-style
+  background-color blue_l
+  border 2px solid blue_d
+  color #ffffff
+  margin-bottom 1rem
+  text-transform capitalize
+  button-style(5px, 5px, 10px)
+
+.answer
+  cursor pointer
+
+.answer:hover
+  background-color blue_d
+  border 2px solid blue_l
+
+.selected
+  background-color orange_l
+  border 2px solid orange_d
+  color #ffffff
+  margin-bottom 1rem
+  text-transform capitalize
+  button-style(5px, 5px, 10px)
