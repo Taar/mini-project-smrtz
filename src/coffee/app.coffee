@@ -170,9 +170,10 @@ require ['underscore', 'jquery', 'backbone', 'mustache'], (_, $, Backbone, Musta
       amount_correct = 0
 
       for model in app.collection.models
-        results.push model.attributes
-        if model.get('result') is 'correct'
-          amount_correct++
+        if model.get('result')
+          results.push model.attributes
+          if model.get('result') is 'correct'
+            amount_correct++
 
       app.previousResult.set 'amount_correct', amount_correct
       app.previousResult.set 'total_questions', app.collection.length
@@ -290,7 +291,6 @@ require ['underscore', 'jquery', 'backbone', 'mustache'], (_, $, Backbone, Musta
 
   app.router = new Router()
 
-  Backbone.history.start
-    pushState: true
+  Backbone.history.start()
 
   return
