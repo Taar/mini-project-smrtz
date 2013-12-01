@@ -13,13 +13,13 @@
   <script id="questionTemplate" type="text/template">
     <div id="question" class="header" data-id="{{ id }}">{{ question }}</div>
     <div id="answers">
-      <div class="answer blue-style" data-result="true">True</div>
-      <div class="answer blue-style" data-result="false">False</div>
+      <div class="answer blue-style" data-answer="true">True</div>
+      <div class="answer blue-style" data-answer="false">False</div>
     </div>
   </script>
 
   <script id="questionResultTemplate" type="text/template">
-    <div id="result" class="{{ status }}">{{ status }}</div>
+    <div id="result" class="{{ result }}">{{ result }}</div>
     <div id="next">Next Question</div>
   </script>
 
@@ -32,15 +32,15 @@
         </div>
       {{# results }}
         <div class="grid">
-          {{# result }}
+          {{# answered }}
             <div class="selected unit one-of-three">True</div>
             <div class="blue-style unit one-of-three">False</div>
-          {{/ result }}
-          {{^ result }}
+          {{/ answered }}
+          {{^ answered }}
             <div class="blue-style unit one-of-three">True</div>
             <div class="selected unit one-of-three">False</div>
-          {{/ result }}
-          <div class="{{ status }} unit one-of-three">{{ status }}</div>
+          {{/ answered }}
+          <div class="{{ result }} unit one-of-three">{{ result }}</div>
         </div>
       {{/ results }}
       <div class="grid">

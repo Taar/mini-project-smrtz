@@ -24,7 +24,6 @@ require ['underscore', 'jquery', 'backbone', 'mustache'], (_, $, Backbone, Musta
     el: '#body'
 
     initialize: ->
-      console.log "QuizView initialize"
       app.quizEvents.unbind "nextQuestion"
       app.quizEvents.bind "nextQuestion", _.bind(@nextQuestion, this)
       app.collection.fetch
@@ -62,7 +61,6 @@ require ['underscore', 'jquery', 'backbone', 'mustache'], (_, $, Backbone, Musta
 
     initialize: ->
       @givenAnswer = false
-      @listenTo @model, 'change', @render
       @render()
       this
 
@@ -74,24 +72,31 @@ require ['underscore', 'jquery', 'backbone', 'mustache'], (_, $, Backbone, Musta
       if !@givenAnswer
         @givenAnswer = true
 
-        element = $(event.target)
+        element = @$ event.target
         element.removeClass 'answer blue-style'
         element.addClass 'selected'
+        element.siblings().removeClass 'answer'
 
-        result = element.data 'result'
+        users_answer = element.data 'answer'
         @model.set
-          result: result
+          answered: users_answer
 
-        context = {}
-        if @model.get('answer') is result
-          @model.set 'status', 'correct'
-        else
-          @model.set 'status', 'incorrect'
+        answerModel = new AnswerModel
+          id: @model.id
 
-        questionResultView = new QuestionResultView
-          model: @model
-        questionResultView.render()
-        @$el.append questionResultView.$el
+        answerModel.fetch
+          success: (model) =>
+            correct_answer = answerModel.get('answer')
+            if correct_answer is users_answer
+              @model.set 'result', 'correct'
+            else
+              @model.set 'result', 'incorrect'
+
+            questionResultView = new QuestionResultView
+              model: @model
+            questionResultView.render()
+            @$el.append questionResultView.$el
+            return
         return
 
 
@@ -158,7 +163,6 @@ require ['underscore', 'jquery', 'backbone', 'mustache'], (_, $, Backbone, Musta
       'click .again': 'again'
 
     initialize: ->
-      console.log "Initialize"
       @render()
 
     render: ->
@@ -167,7 +171,7 @@ require ['underscore', 'jquery', 'backbone', 'mustache'], (_, $, Backbone, Musta
 
       for model in app.collection.models
         results.push model.attributes
-        if model.get('status') is 'correct'
+        if model.get('result') is 'correct'
           amount_correct++
 
       app.previousResult.set 'amount_correct', amount_correct
@@ -192,9 +196,8 @@ require ['underscore', 'jquery', 'backbone', 'mustache'], (_, $, Backbone, Musta
     defaults:
       id: ''
       question: ''
-      answer: ''
+      answered: ''
       result: ''
-      status: ''
 
 
   class PreviousResultModel extends Backbone.Model
@@ -204,38 +207,58 @@ require ['underscore', 'jquery', 'backbone', 'mustache'], (_, $, Backbone, Musta
       precent: ''
 
 
+  class AnswerModel extends Backbone.Model
+    default:
+      id: ''
+      answer: ''
+    fetch: (options) ->
+      answers =
+        1:
+          answer: true
+        2:
+          answer: false
+        3:
+          answer: true
+        4:
+          answer: false
+
+      id = String(@id)
+
+      if id of answers
+        answer = answers[id]
+      else
+        answer = null
+
+      @set answer
+      options.success this
+      return
+
+
   class QuestionCollection extends Backbone.Collection
     model: QuestionModel
     url: '/questions'
     initialize: ->
-      console.log "QuestionCollection initialize"
       @index = 0
       this
     fetch: (options) ->
       questions = [
           'id': 1
           'question': "Tim Berners-Lee invented the Internet."
-          'answer': true
         ,
           'id': 2
           'question': "Dogs are better than cats."
-          'answer': false
         ,
           'id': 3
           'question': "Winter is coming."
-          'answer': true
         ,
           'id': 4
           'question': "Internet Explorer is the most advanced browser on Earth."
-          'answer': false
       ]
       for question in questions
         @add new QuestionModel(question)
       options.success this
       return
     next: ->
-      console.log current
-      console.log @index
       current = @index
       @index++
       return @models[current]
